@@ -4,7 +4,6 @@ import 'detail_page.dart';
 import 'profile_page.dart';
 import 'login_page.dart';
 
-//kalo mau di homepage keitung pake stateful
 class HomePage extends StatefulWidget {
   final String username;
   const HomePage({super.key, required this.username});
@@ -18,10 +17,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("News App"),
+        title: const Text("News App"),
         actions: [
           IconButton(
-            icon: Icon(Icons.person),
+            icon: const Icon(Icons.person),
             onPressed: () {
               Navigator.push(
                 context,
@@ -32,11 +31,11 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
               );
             },
           ),
@@ -47,43 +46,71 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           final news = newsList[index];
           return Card(
-            margin: EdgeInsets.all(10),
-            child: ListTile(
-              title: Image.network(
-                news.imageUrl,
-                height: 150,
-                fit: BoxFit.cover,
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    news.title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            margin: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Navigasi ke Detail Page saat gambar diklik
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DetailPage(news: news)),
+                    ).then((value) => setState(() {}));
+                  },
+                  child: Image.network(
+                    news.imageUrl,
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  Row(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.favorite, size: 16, color: Colors.grey),
-                      Text(" ${news.likes} likes"),
+                      Text(
+                        news.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      // --- BAGIAN TOMBOL LIKE & DISLIKE ---
+                      Row(
+                        children: [
+                          // Tombol Like
+                          IconButton(
+                            icon: const Icon(Icons.favorite, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                news.likes++; // Tambah like
+                              });
+                            },
+                          ),
+                          Text("${news.likes}"),
+                          
+                          const SizedBox(width: 20), // Jarak antar tombol
+                          
+                          // TOMBOL DISLIKE (Warna Abu-abu, Tidak Merah)
+                          IconButton(
+                            icon: const Icon(Icons.thumb_down_alt_outlined, color: Colors.grey),
+                            onPressed: () {
+                              setState(() {
+                                // Logika: Kurangi like hanya jika angka > 0
+                                if (news.likes > 0) {
+                                  news.likes--;
+                                }
+                              });
+                            },
+                          ),
+                          const Text("Dislike", style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-              onTap: () {
-                //ini kalo pake stateless
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(news: news)));
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPage(news: news),
-                  ),
-                ).then((value) {
-                  // Fungsi ini berjalan saat kamu kembali (pop) dari DetailPage
-                  setState(() {
-                    // Refresh UI untuk mengambil angka likes terbaru dari newsList
-                  });
-                });
-              },
+                ),
+              ],
             ),
           );
         },
